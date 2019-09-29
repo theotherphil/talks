@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <link rel="stylesheet" href="styles.css">
+  <script src="scripts.js" defer></script>
+</head>
+<body>
+  <main>
+    <section id="slide0">
+      <div class="slide">
+        <pre class="code">
+          fn dot_product(xs: &[f32], ys: &[f32]) -> f32 {
+            xs.iter()
+              .zip(ys)
+              .map(|(x, y)| x * y)
+              .sum()
+          }
+        </pre>
+      </div>
+      <div class="controls">
+        <a href="#slide1">Next</a>
+      </div>
+    </section>
+    <section id="slide1">
+      <div class="slide">
+        <p>Second slide<p>
+      </div>
+      <div class="controls">
+        <a href="#slide0">Prev</a>
+        <a href="#slide2">Next</a>
+      </div>
+    </section>
+    <section id="slide2">
+      <div class="slide">
+        <p>Third slide<p>
+      </div>
+      <div class="controls">
+        <a href="#slide1">Prev</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

@@ -3,6 +3,43 @@
 #[cfg(test)]
 extern crate test;
 
+// -------------
+// Intro to rust through iterators
+// (Audience: C# developers)
+// -------------
+//
+// -------------
+// Rust
+// -------------
+//  high performance, enables low level hacking, no GC, memory safe, nice type system
+//  nice tooling (package manager, linter, benchmarking, etc.),
+//  not so great IDE support.
+//
+// good for:
+//  places where you might want to use C, but don't want to use C
+//  places where correctness matters more than development speed
+//
+// not good for:
+//  quick prototyping
+//  GUIs
+//  `business apps` where performance isn't _that_ important
+//
+// how much of our code fits into the 'good for' category? I claim: some.
+//
+// -------------
+// Iterators
+// -------------
+//  slide showing the Iterator trait
+//
+// like an enumerable. next() ~= GetNext()
+// a couple of example uses.
+//
+
+// monomorphisation
+// how to return them? before: box. now: impl trait
+// using closures - Fn, FnMut, FnOnce? move closures
+// data races
+
 //--------------------------------------
 // Iterator performance
 //--------------------------------------
@@ -10,6 +47,9 @@ extern crate test;
 // Most of the examples live in examples/, but this
 // one goes here so that we can use cargo-asm (which
 // doesn't yet support finding assembly from binaries)
+
+// When comparing rust and .net, write a tool to use benchmarkdotnet for .net
+// and standard bench harness plus cargo-asm for rust
 
 pub fn sum_sq_iter(xs: &[f32]) -> f32 {
     xs.iter().map(|x| x * x).sum()

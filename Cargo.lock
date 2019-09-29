@@ -177,7 +177,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "talk"
+name = "talks"
 version = "0.1.0"
 dependencies = [
  "rayon 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
