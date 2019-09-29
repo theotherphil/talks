@@ -4,41 +4,34 @@
 extern crate test;
 
 // -------------
-// Intro to rust through iterators
-// (Audience: C# developers)
+// Rust: iterate faster
 // -------------
 //
-// -------------
-// Rust
-// -------------
-//  high performance, enables low level hacking, no GC, memory safe, nice type system
-//  nice tooling (package manager, linter, benchmarking, etc.),
-//  not so great IDE support.
+// Abstract:
+// LINQ is ergonomic but slow. Rust iterators have a similar
+// look and feel but are much faster. Why are iterators faster,
+// and what stops us from using the same ideas in C#?
 //
-// good for:
-//  places where you might want to use C, but don't want to use C
-//  places where correctness matters more than development speed
-//
-// not good for:
-//  quick prototyping
-//  GUIs
-//  `business apps` where performance isn't _that_ important
-//
-// how much of our code fits into the 'good for' category? I claim: some.
+// This talk assumes you know C#, but does not require any prior Rust
+// knowledge. (Howver, it does not attempt to give a general introduction
+// to Rust. For example, the borrow checker barely gets a mention.)
 //
 // -------------
-// Iterators
+// Outline
 // -------------
-//  slide showing the Iterator trait
-//
-// like an enumerable. next() ~= GetNext()
-// a couple of example uses.
-//
-
-// monomorphisation
-// how to return them? before: box. now: impl trait
-// using closures - Fn, FnMut, FnOnce? move closures
-// data races
+// Slide 1: sum_sq, dot_product, concat loop and LINQ in C#, with perf numbers (note: using BenchmarkDotNet)
+// Slide 2: sum_sq, dot_product, chain loop and iterators in Rust, with perf numbers (note: using built in bencher)
+// ... before digging deeper we need to introduce some Rust concepts ...
+// Slide 3: enums and match expressions
+// Slide 4: traits - declaring, implementing, trait bounds, dyn trait
+// Slide 5: Iterator trait and some examples
+// Slide 6: why iterators are fast, part 1: monomorphisation (show some x86)
+// Slide 7: why iterators are fast, part 2: LLVM (inlining, loop invariant motion, autovectorisation)
+// Slide 8: why iterators are fast, part 3: try_fold (show more x86)
+// Slide 9: why LINQ is slow, part 1: function pointers
+// Slide 10: why LINQ is slow, part 2: no inlining, worse optimiser
+// Slide 11: can we copy the Rust approach in C#?
+// Bonus slide: data race in parallel iterator, brief digression about closures
 
 //--------------------------------------
 // Iterator performance

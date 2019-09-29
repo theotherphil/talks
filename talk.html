@@ -9,13 +9,80 @@
   <main>
     <section id="slide0">
       <div class="slide">
-        <pre class="code">
-          fn dot_product(xs: &[f32], ys: &[f32]) -> f32 {
-            xs.iter()
-              .zip(ys)
-              .map(|(x, y)| x * y)
-              .sum()
+        <pre class="code" style="float:left;width:50%">
+          pub fn sum_sq_iter(xs: &[f32]) -> f32 {
+              xs.iter().map(|x| x * x).sum()
           }
+        </pre>
+        <pre class="code" style="height:90vh;overflow-y:scroll">
+; rsi = len, rdi = ptr. Need a generic way to annotate args in asm snippets
+talks::sum_sq_iter:
+ push    rbp
+ mov     rbp, rsp
+ lea     rax, [4*rsi]
+ test    rax, rax
+ je      LBB0_1
+ lea     rcx, [4*rsi, -, 4]
+ mov     edx, ecx
+ shr     edx, 2
+ inc     edx
+ and     rdx, 7
+ je      LBB0_3
+ neg     rdx
+ xorps   xmm0, xmm0
+ mov     rax, rdi
+LBB0_5:
+ movss   xmm1, dword, ptr, [rax]
+ add     rax, 4
+ mulss   xmm1, xmm1
+ addss   xmm0, xmm1
+ inc     rdx
+ jne     LBB0_5
+ cmp     rcx, 28
+ jae     LBB0_7
+ jmp     LBB0_9
+LBB0_1:
+ xorps   xmm0, xmm0
+ pop     rbp
+ ret
+LBB0_3:
+ xorps   xmm0, xmm0
+ mov     rax, rdi
+ cmp     rcx, 28
+ jb      LBB0_9
+LBB0_7:
+ lea     rcx, [rdi, +, 4*rsi]
+LBB0_8:
+ movss   xmm1, dword, ptr, [rax]
+ movss   xmm2, dword, ptr, [rax, +, 4]
+ mulss   xmm1, xmm1
+ addss   xmm1, xmm0
+ mulss   xmm2, xmm2
+ addss   xmm2, xmm1
+ movss   xmm0, dword, ptr, [rax, +, 8]
+ mulss   xmm0, xmm0
+ addss   xmm0, xmm2
+ movss   xmm1, dword, ptr, [rax, +, 12]
+ mulss   xmm1, xmm1
+ addss   xmm1, xmm0
+ movss   xmm0, dword, ptr, [rax, +, 16]
+ mulss   xmm0, xmm0
+ addss   xmm0, xmm1
+ movss   xmm1, dword, ptr, [rax, +, 20]
+ mulss   xmm1, xmm1
+ addss   xmm1, xmm0
+ movss   xmm2, dword, ptr, [rax, +, 24]
+ mulss   xmm2, xmm2
+ addss   xmm2, xmm1
+ movss   xmm0, dword, ptr, [rax, +, 28]
+ mulss   xmm0, xmm0
+ addss   xmm0, xmm2
+ add     rax, 32
+ cmp     rax, rcx
+ jne     LBB0_8
+LBB0_9:
+ pop     rbp
+ ret
         </pre>
       </div>
       <div class="controls">
