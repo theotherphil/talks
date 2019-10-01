@@ -20,8 +20,11 @@ section {
 }
 
 .slide {
-  width: 100%;
-  max-height: 100vh;
+  position: absolute;
+  top: 20%;
+  left: 30%;
+  vertical-align: center;
+  margin: auto;
 }
 
 .controls {
@@ -36,7 +39,9 @@ section {
 }
 
 .code {
-  text-align: left
+  text-align: left;
+  width: 50%;
+  float: center;
 }
 
 section:target {

@@ -10,12 +10,55 @@
     <section id="slide0">
       <div class="slide">
         <pre class="code" style="float:left;width:50%">
-          pub fn sum_sq_iter(xs: &[f32]) -> f32 {
-              xs.iter().map(|x| x * x).sum()
-          }
+pub fn sum_sq_iter(xs: &[f32]) -> f32 {
+    xs.iter().map(|x| x * x).sum()
+}
         </pre>
+      </div>
+      <div class="controls">
+        <a href="#slide1">Next</a>
+      </div>
+    </section>
+    <section id="slide1">
+      <div class="slide">
+        <p>Second slide<p>
+      </div>
+      <div class="controls">
+        <a href="#slide0">Prev</a>
+        <a href="#slide2">Next</a>
+      </div>
+    </section>
+    <section id="slide2">
+      <div class="slide">
+        <p>Third slide<p>
+      </div>
+      <div class="controls">
+        <a href="#slide1">Prev</a>
+        <a href="#slide3">Next</a>
+      </div>
+    </section>
+    <section id="slide3">
+      <div class="slide">
+        <pre class="code">
+pub trait Iterator {
+    type Item;
+
+    fn next(&mut self) -> Option&ltSelf::Item&gt;
+
+    // ... nth, map, filter, collect, ...
+}
+        </pre>
+      </div>
+      <div class="controls">
+        <a href="#slide2">Prev</a>
+        <a href="#slide4">Next</a>
+      </div>
+    </section>
+    <section id="slide4">
+      <div class="slide">
         <pre class="code" style="height:90vh;overflow-y:scroll">
-; rsi = len, rdi = ptr. Need a generic way to annotate args in asm snippets
+; rsi = len, rdi = ptr.
+; Need a generic way to annotate args in asm snippets
 talks::sum_sq_iter:
  push    rbp
  mov     rbp, rsp
@@ -86,24 +129,7 @@ LBB0_9:
         </pre>
       </div>
       <div class="controls">
-        <a href="#slide1">Next</a>
-      </div>
-    </section>
-    <section id="slide1">
-      <div class="slide">
-        <p>Second slide<p>
-      </div>
-      <div class="controls">
-        <a href="#slide0">Prev</a>
-        <a href="#slide2">Next</a>
-      </div>
-    </section>
-    <section id="slide2">
-      <div class="slide">
-        <p>Third slide<p>
-      </div>
-      <div class="controls">
-        <a href="#slide1">Prev</a>
+        <a href="#slide3">Prev</a>
       </div>
     </section>
   </main>

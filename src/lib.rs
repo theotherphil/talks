@@ -3,6 +3,9 @@
 #[cfg(test)]
 extern crate test;
 
+use std::borrow::Borrow;
+use pulldown_cmark::{Parser, Options, html, Event, Tag};
+
 // -------------
 // Rust: iterate faster
 // -------------
@@ -68,6 +71,23 @@ pub fn dot_product_loop(xs: &[f32], ys: &[f32]) -> f32 {
     result
 }
 
+pub fn sum_slices_iter(xs: &[f32], ys: &[f32]) -> f32 {
+    let mut sum = 0.0;
+
+    for x in xs.iter() {
+        sum += x;
+    }
+    for y in ys.iter() {
+        sum += y;
+    }
+
+    sum
+}
+
+pub fn sum_slices_loop(xs: &[f32], ys: &[f32]) -> f32 {
+    xs.iter().chain(ys).sum()
+}
+
 //--------------------------------------
 // Iterator performance - bonus round
 //--------------------------------------
@@ -105,6 +125,77 @@ where
             ChainState::Back => self.b.next()
         }
     }
+}
+
+#[test]
+fn collect_slides() {
+    let markdown_path = "slides.md";
+    let input = std::fs::read_to_string(markdown_path).unwrap();
+    let options = Options::empty();
+
+    let mut in_heading = false;
+    let mut heading_contents = Vec::<Event<'_>>::new();
+    // Determined by last seen level 1 heading
+    let mut current_slide = None;
+    // Determined by last seen heading of any level
+    let mut current_section = None;
+
+    let mut notes = Vec::new();
+    let mut slides = Vec::new();
+
+    let parser = Parser::new_ext(&input, options)
+        .map(|event| match event {
+            Event::Start(Tag::Heading(n)) => {
+                in_heading = true;
+                heading_contents.clear();
+            },
+            Event::End(Tag::Heading(n)) => {
+                in_heading = false;
+                if heading_contents.len() != 1 {
+                    panic!("Heading contents has len != 1");
+                }
+                match heading_contents[0] {
+                    Event::Text(ref t) => {
+                        current_section = Some(t.to_string());
+                        if n == 1 {
+                            current_slide = Some(t.to_string());
+                            push_header(&mut notes, 1, t);
+                            push_header(&mut slides, 1, t);
+                        }
+                    },
+                    _ => panic!("Non-text contents in heading")
+                }
+            },
+            ref x => {
+                if in_heading {
+                    heading_contents.push(x.clone());
+                } else if let Some(h) = &current_section {
+                    if h == "Notes" {
+                        notes.push(x.clone());
+                    } else {
+                        slides.push(x.clone());
+                    }
+                }
+            }
+        });
+
+    let _: Vec<_> = parser.collect();
+
+    println!("Notes: {:?}", notes);
+
+    let mut slides_output = String::new();
+    html::push_html(&mut slides_output, slides.into_iter());
+    std::fs::write("slides.html", slides_output).unwrap();
+
+    let mut notes_output = String::new();
+    html::push_html(&mut notes_output, notes.into_iter());
+    std::fs::write("notes.html", notes_output).unwrap();
+}
+
+fn push_header<'a>(out: &mut Vec<Event<'a>>, level: u32, text: &pulldown_cmark::CowStr<'a>) {
+    out.push(Event::Start(Tag::Heading(level)));
+    out.push(Event::Text(text.clone()));
+    out.push(Event::End(Tag::Heading(level)));
 }
 
 // Detecting data races at compile time: examples/data_race.rs
@@ -161,6 +252,9 @@ mod tests {
 
     bench_binary_array_function!(bench_dot_product_loop, dot_product_loop);
     bench_binary_array_function!(bench_dot_product_iter, dot_product_iter);
+
+    bench_binary_array_function!(bench_sum_slices_iter, sum_slices_iter);
+    bench_binary_array_function!(bench_sum_slices_loop, sum_slices_loop);
 
     #[bench]
     fn bench_naive_chain(b: &mut Bencher) {
