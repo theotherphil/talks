@@ -3,8 +3,22 @@
 #[cfg(test)]
 extern crate test;
 
-use std::borrow::Borrow;
+use std::fmt::Write;
+
+//use std::borrow::Borrow;
 use pulldown_cmark::{Parser, Options, html, Event, Tag};
+
+// -------------
+// Rust: the borrow checker
+// -------------
+// Goal: implement a borrow checker for a minimal subset of
+// the language using datalog (/polonius) and explain how it works
+// Generate facts using
+// cargo rustc -- -Znll-facts
+// but refuse to accept anything complicated
+// how do you dump mir, and mir cfg graphs?
+// cargo rustc -- -Zdump-mir=dot_product
+// cargo rustc -- -Zdump-mir-graphviz
 
 // -------------
 // Rust: iterate faster
@@ -46,6 +60,14 @@ use pulldown_cmark::{Parser, Options, html, Event, Tag};
 
 // When comparing rust and .net, write a tool to use benchmarkdotnet for .net
 // and standard bench harness plus cargo-asm for rust
+
+// pub fn polonius() {
+//     let mut x = 1;
+//     let y = &mut x;
+//     *y += 1;
+//     let z = &x;
+//
+// }
 
 pub fn sum_sq_iter(xs: &[f32]) -> f32 {
     xs.iter().map(|x| x * x).sum()
@@ -127,10 +149,22 @@ where
     }
 }
 
-#[test]
-fn collect_slides() {
-    let markdown_path = "slides.md";
-    let input = std::fs::read_to_string(markdown_path).unwrap();
+
+// Just do a load of passes
+// Pass 1:
+//  split #notes and #slides into separate md files,
+
+/// Extracts sections with given names from a markdown file.
+/// Creates new markdown files for each section name given.
+/// Sections in the output file are given the name of the parent
+/// of the extracted section from the input file.
+///
+/// Only considers level 2 headings.
+fn split_markdown<'a>(input: &'a str, sections: &[&str]) -> Vec<Vec<Event<'a>>> {
+    let mut results = Vec::with_capacity(sections.len());
+    for _ in sections {
+        results.push(Vec::new());
+    }
     let options = Options::empty();
 
     let mut in_heading = false;
@@ -140,12 +174,9 @@ fn collect_slides() {
     // Determined by last seen heading of any level
     let mut current_section = None;
 
-    let mut notes = Vec::new();
-    let mut slides = Vec::new();
-
-    let parser = Parser::new_ext(&input, options)
+    let parser = Parser::new_ext(input, options)
         .map(|event| match event {
-            Event::Start(Tag::Heading(n)) => {
+            Event::Start(Tag::Heading(_)) => {
                 in_heading = true;
                 heading_contents.clear();
             },
@@ -159,8 +190,9 @@ fn collect_slides() {
                         current_section = Some(t.to_string());
                         if n == 1 {
                             current_slide = Some(t.to_string());
-                            push_header(&mut notes, 1, t);
-                            push_header(&mut slides, 1, t);
+                            for mut result in &mut results {
+                                push_header(&mut result, 1, t);
+                            }
                         }
                     },
                     _ => panic!("Non-text contents in heading")
@@ -170,16 +202,83 @@ fn collect_slides() {
                 if in_heading {
                     heading_contents.push(x.clone());
                 } else if let Some(h) = &current_section {
-                    if h == "Notes" {
-                        notes.push(x.clone());
-                    } else {
-                        slides.push(x.clone());
+                    for i in 0..sections.len() {
+                        if h == sections[i] {
+                            results[i].push(x.clone());
+                        }
                     }
                 }
             }
         });
 
     let _: Vec<_> = parser.collect();
+    results
+}
+
+fn render<'a, W: Write, I: Iterator<Item = Event<'a>>>(w: &mut W, iter: I) {
+    for e in iter {
+        println!("{:?}", e);
+    }
+}
+
+#[test]
+fn collect_slides() {
+    let markdown_path = "slides.md";
+    let input = std::fs::read_to_string(markdown_path).unwrap();
+    let split = split_markdown(&input, &vec!["Notes", "Slides"]);
+    let notes = split[0].iter().cloned();
+    let slides = split[1].iter().cloned();
+
+    // let options = Options::empty();
+    //
+    // let mut in_heading = false;
+    // let mut heading_contents = Vec::<Event<'_>>::new();
+    // // Determined by last seen level 1 heading
+    // let mut current_slide = None;
+    // // Determined by last seen heading of any level
+    // let mut current_section = None;
+    //
+    //
+    // let mut notes = Vec::new();
+    // let mut slides = Vec::new();
+    //
+    // let parser = Parser::new_ext(&input, options)
+    //     .map(|event| match event {
+    //         Event::Start(Tag::Heading(n)) => {
+    //             in_heading = true;
+    //             heading_contents.clear();
+    //         },
+    //         Event::End(Tag::Heading(n)) => {
+    //             in_heading = false;
+    //             if heading_contents.len() != 1 {
+    //                 panic!("Heading contents has len != 1");
+    //             }
+    //             match heading_contents[0] {
+    //                 Event::Text(ref t) => {
+    //                     current_section = Some(t.to_string());
+    //                     if n == 1 {
+    //                         current_slide = Some(t.to_string());
+    //                         push_header(&mut notes, 1, t);
+    //                         push_header(&mut slides, 1, t);
+    //                     }
+    //                 },
+    //                 _ => panic!("Non-text contents in heading")
+    //             }
+    //         },
+    //         ref x => {
+    //             if in_heading {
+    //                 heading_contents.push(x.clone());
+    //             } else if let Some(h) = &current_section {
+    //                 if h == "Notes" {
+    //                     notes.push(x.clone());
+    //                 } else {
+    //                     slides.push(x.clone());
+    //                 }
+    //             }
+    //         }
+    //     });
+    //
+    // let _: Vec<_> = parser.collect();
 
     println!("Notes: {:?}", notes);
 

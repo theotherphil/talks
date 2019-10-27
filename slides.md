@@ -3,7 +3,7 @@
 
 Rust: iterate faster
 
-# LINQ
+# C# - loops vs LINQ
 
 ```csharp
 float SumSqLinq(IEnumerable<float> xs)
@@ -11,6 +11,7 @@ float SumSqLinq(IEnumerable<float> xs)
   return xs.Sum(x => x * x);
 }
 ```
+TODO: either add annotations for benchmarking, or just work it out from the function signatures
 ```csharp
 float SumSqLoop(IEnumerable<float> xs)
 {
@@ -60,9 +61,7 @@ float SumSlicesLoop(IEnumerable<float> xs, IEnumerable<float> ys)
 }
 ```
 
-# Iterators
-
-## Notes
+# Rust - loops vs iterators
 
 ## Slide
 
@@ -124,8 +123,9 @@ first slide: just C# results. Second slide: add Rust results
 
 ## Notes
 
-... before digging deeper we need to introduce some Rust concepts ...
-TODO: notes for enums
+Before digging deeper we need to introduce a few Rust concepts.
+
+Tagged unions.
 
 ## Slide
 
@@ -148,7 +148,9 @@ let y = match x {
 
 ## Notes
 
-TODO: notes for traits
+Sort of like interfaces. More like Haskell typeclasses.
+
+TODO: more words
 
 ## Slide
 
